@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Sushi Papa — Доставка суши и роллов</title>
+<style>
+  :root{
+    --bg:#0f0f11;
+    --card:#18181c;
+    --card-2:#1f1f25;
+    --accent:#ff4d29;
+    --accent-2:#ff6a47;
+    --text:#ffffff;
+    --muted:#9a9aa3;
+    --border:#2a2a31;
+    --success:#22c55e;
+    --radius:16px;
+    --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Segoe UI','Inter',system-ui,-apple-system,Roboto,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  /* Когда открыта корзина — блокируем прокрутку ТОЛЬКО страницы,
+     сам drawer продолжает прокручиваться независимо */
+  body.no-scroll{overflow:hidden}
+  a{color:inherit;text-decoration:none}
+  img{display:block;max-width:100%}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+  .container{max-width:1240px;margin:0 auto;padding:0 20px}
+
+  /* ===== HEADER ===== */
+  header{
+    position:sticky;top:0;z-index:50;
+    background:rgba(15,15,17,.85);
+    backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border);
+  }
+  .header-inner{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 0;gap:20px;
+  }
+  .logo{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:800;letter-spacing:.5px}
+  .logo-mark{
+    width:40px;height:40px;border-radius:12px;
+    background:linear-gradient(135deg,var(--accent),#ff8a3d);
+    display:grid;place-items:center;font-size:22px;
+    box-shadow:0 6px 18px rgba(255,77,41,.45);
+  }
+  .logo span{color:var(--accent)}
+  nav ul{display:flex;gap:28px;list-style:none}
+  nav a{font-size:15px;color:var(--muted);transition:color .2s}
+  nav a:hover{color:var(--text)}
+  .header-right{display:flex;align-items:center;gap:18px}
+  .work-time{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px}
+  .work-time::before{
+    content:"";width:8px;height:8px;border-radius:50%;
+    background:var(--success);box-shadow:0 0 8px var(--success);
+  }
+  .phone{
+    font-weight:700;font-size:15px;
+    padding:10px 16px;border-radius:12px;
+    background:var(--card);border:1px solid var(--border);
+    transition:all .2s;
+  }
+  .phone:hover{border-color:var(--accent);color:var(--accent)}
+  .cart-btn{
+    position:relative;
+    display:flex;align-items:center;gap:10px;
+    padding:10px 18px;border-radius:12px;
+    background:var(--accent);color:#fff;font-weight:700;
+    transition:transform .15s, box-shadow .2s;
+    box-shadow:0 6px 18px rgba(255,77,41,.35);
+  }
+  .cart-btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(255,77,41,.5)}
+  .cart-count{
+    min-width:22px;height:22px;padding:0 6px;
+    background:#fff;color:var(--accent);
+    border-radius:999px;font-size:12px;font-weight:800;
+    display:grid;place-items:center;
+  }
+  .burger{display:none;font-size:26px}
+
+  /* ===== HERO ===== */
+  .hero{
+    position:relative;min-height:560px;
+    display:flex;align-items:center;overflow:hidden;
+    border-bottom:1px solid var(--border);
+  }
+  .hero-bg{position:absolute;inset:0;background:linear-gradient(135deg,#241a16,#16161a)}
+  .hero-bg img{width:100%;height:100%;object-fit:cover;filter:brightness(.55) saturate(1.1)}
+  .hero-bg::after{
+    content:"";position:absolute;inset:0;
+    background:linear-gradient(90deg,rgba(15,15,17,.92) 0%,rgba(15,15,17,.6) 55%,rgba(15,15,17,.2) 100%);
+  }
+  .hero-content{position:relative;z-index:2;max-width:640px;padding:80px 0}
+  .hero-badge{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:8px 16px;border-radius:999px;
+    background:rgba(255,77,41,.15);
+    border:1px solid rgba(255,77,41,.35);
+    color:var(--accent);font-size:13px;font-weight:600;
+    margin-bottom:24px;
+  }
+  .hero h1{
+    font-size:clamp(34px,5vw,58px);
+    line-height:1.05;font-weight:800;
+    margin-bottom:20px;letter-spacing:-.5px;
+  }
+  .hero h1 em{color:var(--accent);font-style:normal}
+  .hero p{font-size:18px;color:#d6d6dc;margin-bottom:36px;max-width:520px}
+  .hero-actions{display:flex;gap:14px;flex-wrap:wrap}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:10px;
+    padding:16px 32px;border-radius:14px;
+    font-size:16px;font-weight:700;transition:all .2s;
+  }
+  .btn-primary{background:var(--accent);color:#fff;box-shadow:0 10px 24px rgba(255,77,41,.4)}
+  .btn-primary:hover{background:var(--accent-2);transform:translateY(-2px)}
+  .btn-ghost{
+    background:rgba(255,255,255,.08);color:#fff;
+    border:1px solid rgba(255,255,255,.15);
+    backdrop-filter:blur(6px);
+  }
+  .btn-ghost:hover{background:rgba(255,255,255,.14)}
+
+  /* ===== SECTIONS ===== */
+  section{padding:80px 0}
+  .section-title{text-align:center;margin-bottom:48px}
+  .section-title h2{
+    font-size:clamp(28px,3.5vw,42px);
+    font-weight:800;margin-bottom:12px;letter-spacing:-.5px;
+  }
+  .section-title p{color:var(--muted);font-size:16px}
+
+  /* ===== FILTERS ===== */
+  .filters{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:40px}
+  .filter-btn{
+    padding:10px 22px;border-radius:999px;
+    background:var(--card);border:1px solid var(--border);
+    font-size:14px;font-weight:600;color:var(--muted);
+    transition:all .2s;
+  }
+  .filter-btn:hover{color:#fff;border-color:#3a3a44}
+  .filter-btn.active{
+    background:var(--accent);color:#fff;border-color:var(--accent);
+    box-shadow:0 6px 16px rgba(255,77,41,.35);
+  }
+
+  /* ===== MENU GRID ===== */
+  .menu-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+    gap:24px;
+  }
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    overflow:hidden;
+    display:flex;flex-direction:column;
+    transition:transform .25s, border-color .25s, box-shadow .25s;
+  }
+  .card:hover{transform:translateY(-4px);border-color:#3a3a44;box-shadow:var(--shadow)}
+  .card-img{
+    position:relative;aspect-ratio:4/3;overflow:hidden;
+    background:linear-gradient(135deg,#241a16,#16161a);
+  }
+  .card-img::before{
+    content:attr(data-emoji);
+    position:absolute;inset:0;
+    display:grid;place-items:center;
+    font-size:46px;opacity:.45;
+  }
+  .card-img img{
+    position:absolute;inset:0;
+    width:100%;height:100%;object-fit:cover;
+    transition:transform .5s;
+  }
+  .card:hover .card-img img{transform:scale(1.06)}
+  .card-tag{
+    position:absolute;top:12px;left:12px;z-index:2;
+    padding:4px 10px;border-radius:999px;
+    background:rgba(0,0,0,.65);
+    font-size:11px;font-weight:700;letter-spacing:.5px;
+    text-transform:uppercase;color:#fff;
+    backdrop-filter:blur(4px);
+  }
+  .card-body{padding:18px;display:flex;flex-direction:column;flex:1}
+  .card-title{font-size:18px;font-weight:700;margin-bottom:8px}
+  .card-desc{
+    font-size:13px;color:var(--muted);
+    margin-bottom:14px;flex:1;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+    overflow:hidden;
+  }
+  .card-weight{font-size:12px;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:6px}
+  .card-footer{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .price{font-size:20px;font-weight:800;color:#fff}
+  .price small{font-size:13px;color:var(--muted);font-weight:500;margin-left:2px}
+  .add-btn{
+    padding:10px 16px;border-radius:12px;
+    background:var(--accent);color:#fff;font-weight:700;font-size:14px;
+    transition:all .2s;
+    display:flex;align-items:center;gap:8px;
+    min-width:130px;justify-content:center;
+  }
+  .add-btn:hover{background:var(--accent-2)}
+  .qty-controls{
+    display:flex;align-items:center;gap:10px;
+    background:var(--card-2);border:1px solid var(--border);
+    border-radius:12px;padding:4px;
+  }
+  .qty-btn{
+    width:28px;height:28px;border-radius:8px;
+    background:var(--accent);color:#fff;font-weight:700;
+    display:grid;place-items:center;font-size:16px;
+    transition:background .15s;
+  }
+  .qty-btn:hover{background:var(--accent-2)}
+  .qty-val{min-width:22px;text-align:center;font-weight:700;font-size:15px}
+
+  /* ===== DELIVERY CONDITIONS ===== */
+  .delivery{background:var(--card);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+  .zones{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:20px;margin-bottom:40px;
+  }
+  .zone-card{
+    background:var(--bg);border:1px solid var(--border);
+    border-radius:var(--radius);padding:28px;
+    transition:border-color .2s, transform .2s;
+  }
+  .zone-card:hover{border-color:var(--accent);transform:translateY(-3px)}
+  .zone-icon{
+    width:54px;height:54px;border-radius:14px;
+    background:linear-gradient(135deg,var(--accent),#ff8a3d);
+    display:grid;place-items:center;font-size:26px;
+    margin-bottom:18px;
+    box-shadow:0 8px 20px rgba(255,77,41,.3);
+  }
+  .zone-card h3{font-size:19px;margin-bottom:8px}
+  .zone-card .zone-meta{color:var(--accent);font-weight:700;font-size:14px;margin-bottom:12px}
+  .zone-card p{color:var(--muted);font-size:14px;line-height:1.6}
+  .payments{
+    background:var(--bg);border:1px solid var(--border);
+    border-radius:var(--radius);padding:30px;
+    display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:24px;
+  }
+  .payments h3{font-size:20px;margin-bottom:6px}
+  .payments p{color:var(--muted);font-size:14px}
+  .pay-methods{display:flex;gap:12px;flex-wrap:wrap}
+  .pay-chip{
+    padding:12px 18px;border-radius:12px;
+    background:var(--card-2);border:1px solid var(--border);
+    font-size:14px;font-weight:600;
+    display:flex;align-items:center;gap:8px;
+  }
+
+  /* ===== FOOTER ===== */
+  footer{background:#0a0a0c;border-top:1px solid var(--border);padding:60px 0 30px}
+  .footer-grid{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:40px;margin-bottom:40px;
+  }
+  .footer-col h4{
+    font-size:15px;margin-bottom:18px;
+    text-transform:uppercase;letter-spacing:1px;
+    color:var(--accent);
+  }
+  .footer-col p,.footer-col a{
+    color:var(--muted);font-size:14px;
+    display:block;margin-bottom:10px;
+    transition:color .2s;
+  }
+  .footer-col a:hover{color:var(--accent)}
+  .footer-bottom{
+    border-top:1px solid var(--border);
+    padding-top:24px;text-align:center;
+    color:var(--muted);font-size:13px;
+  }
+
+  /* =========================================================
+     CART DRAWER — полностью переработанная структура
+     Вся внутренность корзины — единый прокручиваемый блок:
+     товары + зоны доставки + форма + кнопка "Оформить заказ".
+     ========================================================= */
+  .overlay{
+    position:fixed;inset:0;
+    background:rgba(0,0,0,.6);
+    backdrop-filter:blur(4px);
+    opacity:0;pointer-events:none;
+    transition:opacity .3s;z-index:100;
+  }
+  .overlay.active{opacity:1;pointer-events:auto}
+
+  /* Сам drawer — жёсткий flex-контейнер высотой 100dvh.
+     Он НЕ прокручивается сам, прокручивается только внутренний .drawer-scroll. */
+  .drawer{
+    position:fixed;
+    top:0;right:0;bottom:0;
+    width:min(460px,100%);
+    height:100dvh;
+    max-height:100dvh;
+    background:var(--card);
+    border-left:1px solid var(--border);
+    z-index:101;
+    transform:translateX(100%);
+    transition:transform .35s cubic-bezier(.4,0,.2,1);
+    display:flex;
+    flex-direction:column;
+    overflow:hidden; /* важно: сам drawer не скроллится */
+  }
+  .drawer.active{transform:translateX(0)}
+
+  /* Заголовок — прилипает сверху, не прокручивается */
+  .drawer-head{
+    padding:22px 24px;
+    border-bottom:1px solid var(--border);
+    display:flex;align-items:center;justify-content:space-between;
+    flex-shrink:0;
+    background:var(--card);
+    z-index:5;
+  }
+  .drawer-head h3{font-size:22px;font-weight:800}
+  .close-btn{
+    width:38px;height:38px;border-radius:10px;
+    background:var(--card-2);
+    display:grid;place-items:center;font-size:20px;
+    transition:background .2s;
+  }
+  .close-btn:hover{background:#2a2a33}
+
+  /* ЕДИНЫЙ прокручиваемый контейнер внутри корзины.
+     Вмещает и товары, и форму — всё скроллится вместе. */
+  .drawer-scroll{
+    flex:1 1 auto;
+    min-height:0; /* критично для flex: позволяет overflow-y работать */
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    scroll-behavior:smooth;
+    overscroll-behavior:contain;
+    display:flex;
+    flex-direction:column;
+  }
+  .drawer-scroll::-webkit-scrollbar{width:6px}
+  .drawer-scroll::-webkit-scrollbar-thumb{background:#2a2a33;border-radius:3px}
+
+  .drawer-body{
+    padding:20px 24px;
+    flex-shrink:0;
+  }
+  .cart-empty{text-align:center;padding:60px 20px;color:var(--muted)}
+  .cart-empty .emoji{font-size:56px;margin-bottom:16px;display:block}
+  .cart-item{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--border)}
+  .cart-item:last-child{border-bottom:none}
+  .cart-thumb{
+    position:relative;
+    width:72px;height:72px;border-radius:12px;
+    overflow:hidden;flex-shrink:0;
+    background:linear-gradient(135deg,#241a16,#16161a);
+    display:grid;place-items:center;
+  }
+  .cart-thumb::before{content:attr(data-emoji);font-size:26px;opacity:.5}
+  .cart-thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .cart-item-info{flex:1;min-width:0}
+  .cart-item-title{
+    font-size:15px;font-weight:700;margin-bottom:4px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .cart-item-price{font-size:13px;color:var(--muted);margin-bottom:8px}
+  .cart-item-controls{display:flex;align-items:center;justify-content:space-between}
+  .cart-item-total{font-weight:800;font-size:15px}
+  .remove-btn{color:var(--muted);font-size:12px;text-decoration:underline;transition:color .2s}
+  .remove-btn:hover{color:var(--accent)}
+
+  /* Футер корзины (итого + форма) теперь внутри .drawer-scroll,
+     поэтому прокручивается вместе с товарами.
+     Увеличенный padding-bottom — страховка от клавиатуры на мобильных. */
+  .drawer-foot{
+    padding:20px 24px;
+    padding-bottom:calc(120px + env(safe-area-inset-bottom, 0px));
+    border-top:1px solid var(--border);
+    background:var(--card);
+    flex-shrink:0;
+  }
+  .summary-row{display:flex;justify-content:space-between;margin-bottom:10px;font-size:14px;color:var(--muted)}
+  .summary-row.total{
+    font-size:20px;font-weight:800;color:#fff;
+    margin:14px 0 18px;padding-top:14px;
+    border-top:1px dashed var(--border);
+  }
+  .summary-row .free{color:var(--success);font-weight:600}
+
+  /* Zone selector */
+  .zone-selector{
+    background:var(--card-2);border:1px solid var(--border);
+    border-radius:12px;padding:14px;margin-bottom:16px;
+  }
+  .zone-selector-label{font-size:13px;color:var(--muted);margin-bottom:10px;display:block}
+  .zone-option{
+    display:flex;align-items:flex-start;gap:10px;
+    padding:10px;border-radius:10px;cursor:pointer;
+    transition:background .15s;margin-bottom:4px;
+  }
+  .zone-option:hover{background:rgba(255,255,255,.03)}
+  .zone-option input{margin-top:3px;accent-color:var(--accent)}
+  .zone-option-text{flex:1;font-size:13px}
+  .zone-option-text strong{display:block;color:#fff;margin-bottom:2px;font-size:14px}
+  .zone-option-text span{color:var(--muted);font-size:12px}
+
+  /* Form */
+  .form-group{margin-bottom:12px}
+  .form-group label{
+    display:block;font-size:12px;color:var(--muted);
+    margin-bottom:6px;font-weight:600;
+    text-transform:uppercase;letter-spacing:.5px;
+  }
+  .form-group input,.form-group textarea{
+    width:100%;padding:12px 14px;
+    background:var(--card-2);border:1px solid var(--border);
+    border-radius:10px;color:#fff;font-size:14px;
+    font-family:inherit;transition:border-color .2s;
+  }
+  .form-group input:focus,.form-group textarea:focus{outline:none;border-color:var(--accent)}
+  .form-group textarea{resize:vertical;min-height:60px}
+  .checkout-btn{
+    width:100%;padding:16px;border-radius:12px;
+    background:var(--accent);color:#fff;
+    font-size:16px;font-weight:700;transition:all .2s;
+    box-shadow:0 8px 20px rgba(255,77,41,.35);
+  }
+  .checkout-btn:hover{background:var(--accent-2);transform:translateY(-1px)}
+
+  /* ===== MODAL ===== */
+  .modal{
+    position:fixed;inset:0;z-index:200;
+    display:grid;place-items:center;padding:20px;
+    opacity:0;pointer-events:none;transition:opacity .3s;
+  }
+  .modal.active{opacity:1;pointer-events:auto}
+  .modal-bg{position:absolute;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px)}
+  .modal-content{
+    position:relative;z-index:1;
+    background:var(--card);border:1px solid var(--border);
+    border-radius:20px;padding:40px 32px;
+    max-width:440px;width:100%;text-align:center;
+    transform:scale(.9);transition:transform .3s;
+  }
+  .modal.active .modal-content{transform:scale(1)}
+  .modal-icon{
+    width:80px;height:80px;border-radius:50%;
+    background:linear-gradient(135deg,var(--success),#16a34a);
+    display:grid;place-items:center;font-size:40px;
+    margin:0 auto 20px;
+    box-shadow:0 10px 30px rgba(34,197,94,.4);
+    animation:pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+  .modal h3{font-size:26px;margin-bottom:10px}
+  .modal .order-num{
+    display:inline-block;padding:6px 14px;border-radius:999px;
+    background:rgba(255,77,41,.15);color:var(--accent);
+    font-weight:800;font-size:18px;margin-bottom:16px;
+  }
+  .modal p{color:var(--muted);font-size:15px;margin-bottom:8px}
+  .modal-info{
+    background:var(--bg);border:1px solid var(--border);
+    border-radius:12px;padding:16px;margin:20px 0;text-align:left;
+  }
+  .modal-info-row{display:flex;justify-content:space-between;padding:6px 0;font-size:14px}
+  .modal-info-row span:first-child{color:var(--muted)}
+  .modal-info-row span:last-child{font-weight:600}
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width:900px){
+    nav,.work-time{display:none}
+    .burger{display:block}
+    .header-right{gap:10px}
+    .phone{display:none}
+    section{padding:60px 0}
+    .hero{min-height:480px}
+    .hero-content{padding:60px 0}
+    .hero p{font-size:16px}
+    .menu-grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+  }
+  @media (max-width:500px){
+    .logo{font-size:20px}
+    .logo-mark{width:36px;height:36px;font-size:18px}
+    .cart-btn{padding:10px 14px;font-size:13px}
+    .menu-grid{grid-template-columns:1fr 1fr;gap:12px}
+    .card-body{padding:12px}
+    .card-title{font-size:15px}
+    .card-desc{font-size:12px;-webkit-line-clamp:2}
+    .price{font-size:16px}
+    .add-btn{padding:8px 10px;font-size:12px;min-width:auto}
+    .qty-controls{padding:3px;gap:6px}
+    .qty-btn{width:24px;height:24px;font-size:14px}
+    .qty-val{font-size:13px;min-width:18px}
+    .section-title h2{font-size:26px}
+    .modal-content{padding:30px 22px}
+    .modal h3{font-size:22px}
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="container header-inner">
+    <a href="#" class="logo">
+      <span class="logo-mark">🍣</span>
+      Sushi <span>Papa</span>
+    </a>
+    <nav>
+      <ul>
+        <li><a href="#menu">Меню</a></li>
+        <li><a href="#delivery">Доставка и оплата</a></li>
+        <li><a href="#contacts">Контакты</a></li>
+      </ul>
+    </nav>
+    <div class="header-right">
+      <div class="work-time">Ежедневно 11:00–23:00</div>
+      <a href="tel:+375292998176" class="phone">+375 (29) 299-81-76</a>
+      <button class="cart-btn" id="openCart">
+        🛒 Корзина
+        <span class="cart-count" id="cartCount">0</span>
+      </button>
+      <button class="burger" id="burger" aria-label="Меню">☰</button>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg">
+    <img src="https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=1800&q=80"
+         alt="Свежие суши и роллы" onerror="imgError(this)">
+  </div>
+  <div class="container hero-content">
+    <span class="hero-badge">🔥 Доставка за 45 минут или скидка 15%</span>
+    <h1>Суши и роллы, которые <em>цветут вкусом</em></h1>
+    <p>Только свежая рыба премиум-класса, рис первой сортности и авторские рецепты от шеф-повара. Привезём горячими — прямо к вашему столу.</p>
+    <div class="hero-actions">
+      <a href="#menu" class="btn btn-primary">Выбрать сет →</a>
+      <a href="tel:+375292998176" class="btn btn-ghost">📞 Позвонить</a>
+    </div>
+  </div>
+</section>
+
+<!-- MENU -->
+<section id="menu">
+  <div class="container">
+    <div class="section-title">
+      <h2>Наше меню</h2>
+      <p>Выберите любимые позиции — мы приготовим их при вас</p>
+    </div>
+    <div class="filters" id="filters">
+      <button class="filter-btn active" data-filter="all">Все</button>
+      <button class="filter-btn" data-filter="sets">Сеты</button>
+      <button class="filter-btn" data-filter="philadelphia">Филадельфия</button>
+      <button class="filter-btn" data-filter="baked">Запеченные</button>
+      <button class="filter-btn" data-filter="drinks">Напитки</button>
+    </div>
+    <div class="menu-grid" id="menuGrid"></div>
+  </div>
+</section>
+
+<!-- DELIVERY -->
+<section id="delivery" class="delivery">
+  <div class="container">
+    <div class="section-title">
+      <h2>Условия доставки и оплаты</h2>
+      <p>Привозим быстро и аккуратно в любую точку города</p>
+    </div>
+    <div class="zones">
+      <div class="zone-card">
+        <div class="zone-icon">📍</div>
+        <h3>Центр / до 5 км</h3>
+        <div class="zone-meta">Бесплатно от 35 BYN</div>
+        <p>При заказе менее 35 BYN стоимость доставки составит 5 BYN. Привозим за 30–45 минут.</p>
+      </div>
+      <div class="zone-card">
+        <div class="zone-icon">🚗</div>
+        <h3>Отдалённые районы 5–10 км</h3>
+        <div class="zone-meta">Бесплатно от 50 BYN</div>
+        <p>При заказе менее 50 BYN стоимость доставки составит 8 BYN. Время в пути — до 60 минут.</p>
+      </div>
+      <div class="zone-card">
+        <div class="zone-icon">🏡</div>
+        <h3>Пригород от 10 км</h3>
+        <div class="zone-meta">Бесплатно от 70 BYN</div>
+        <p>При заказе менее 70 BYN стоимость доставки составит 12 BYN. Привозим за 60–90 минут.</p>
+      </div>
+    </div>
+    <div class="payments">
+      <div>
+        <h3>Способы оплаты</h3>
+        <p>Выбирайте удобный для вас вариант — мы принимаем все популярные способы</p>
+      </div>
+      <div class="pay-methods">
+        <div class="pay-chip">💳 Картой онлайн</div>
+        <div class="pay-chip">💵 Картой курьеру</div>
+        <div class="pay-chip">💶 Наличными курьеру</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer id="contacts">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <div class="logo" style="margin-bottom:16px">
+          <span class="logo-mark">🍣</span>
+          Sushi <span>Papa</span>
+        </div>
+        <p>Премиальная доставка суши и роллов в вашем городе. Готовим с любовью — привозим с заботой.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Контакты</h4>
+        <a href="tel:+375292998176">+375 (29) 299-81-76</a>
+        <a href="mailto:hello@sushipapa.by">hello@sushipapa.by</a>
+        <p>г. Минск, ул. Притыцкого, 156</p>
+      </div>
+      <div class="footer-col">
+        <h4>Режим работы</h4>
+        <p>Ежедневно: 11:00 – 23:00</p>
+        <p>Доставка: до 22:30</p>
+        <p>Без выходных и праздников</p>
+      </div>
+      <div class="footer-col">
+        <h4>Оплата</h4>
+        <p>💳 Картой онлайн</p>
+        <p>💵 Картой курьеру</p>
+        <p>💶 Наличными курьеру</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      © 2026 Sushi Papa. Все права защищены. Сделано с ❤️ в Минске.
+    </div>
+  </div>
+</footer>
+
+<!-- CART DRAWER — новая структура: единый прокручиваемый контейнер -->
+<div class="overlay" id="overlay"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-head">
+    <h3>🛒 Ваша корзина</h3>
+    <button class="close-btn" id="closeCart">✕</button>
+  </div>
+  <!-- ЕДИНЫЙ прокручиваемый блок: товары + итоги + форма + кнопка -->
+  <div class="drawer-scroll" id="drawerScroll">
+    <div class="drawer-body" id="drawerBody"></div>
+    <div class="drawer-foot" id="drawerFoot" style="display:none">
+      <div class="zone-selector">
+        <label class="zone-selector-label">📍 Зона доставки</label>
+        <label class="zone-option">
+          <input type="radio" name="zone" value="center" checked>
+          <div class="zone-option-text">
+            <strong>Центр / до 5 км</strong>
+            <span>Бесплатно от 35 BYN · иначе 5 BYN</span>
+          </div>
+        </label>
+        <label class="zone-option">
+          <input type="radio" name="zone" value="far">
+          <div class="zone-option-text">
+            <strong>Отдалённые районы 5–10 км</strong>
+            <span>Бесплатно от 50 BYN · иначе 8 BYN</span>
+          </div>
+        </label>
+        <label class="zone-option">
+          <input type="radio" name="zone" value="suburb">
+          <div class="zone-option-text">
+            <strong>Пригород от 10 км</strong>
+            <span>Бесплатно от 70 BYN · иначе 12 BYN</span>
+          </div>
+        </label>
+      </div>
+      <div class="summary-row"><span>Товары</span><span id="sumSubtotal">0 BYN</span></div>
+      <div class="summary-row"><span>Доставка</span><span id="sumDelivery">0 BYN</span></div>
+      <div class="summary-row total"><span>Итого</span><span id="sumTotal">0 BYN</span></div>
+      <form id="orderForm" autocomplete="on">
+        <div class="form-group">
+          <label>Ваше имя</label>
+          <input type="text" name="name" required placeholder="Иван" autocomplete="name">
+        </div>
+        <div class="form-group">
+          <label>Телефон</label>
+          <input type="tel" name="phone" required placeholder="+375 (__) ___-__-__" autocomplete="tel" inputmode="tel">
+        </div>
+        <div class="form-group">
+          <label>Адрес доставки</label>
+          <input type="text" name="address" required placeholder="Улица, дом, квартира" autocomplete="street-address">
+        </div>
+        <div class="form-group">
+          <label>Комментарий</label>
+          <textarea name="comment" placeholder="Не звонить в дверь / код домофона..."></textarea>
+        </div>
+        <button type="submit" class="checkout-btn">Оформить заказ</button>
+      </form>
+    </div>
+  </div>
+</aside>
+
+<!-- SUCCESS MODAL -->
+<div class="modal" id="successModal">
+  <div class="modal-bg" id="modalBg"></div>
+  <div class="modal-content">
+    <div class="modal-icon">✓</div>
+    <h3>Заказ принят!</h3>
+    <div class="order-num" id="orderNum">#000</div>
+    <p>Спасибо за заказ! Мы уже начали его готовить.</p>
+    <div class="modal-info">
+      <div class="modal-info-row"><span>Зона доставки:</span><span id="modalZone">—</span></div>
+      <div class="modal-info-row"><span>Время доставки:</span><span>≈ 45 минут</span></div>
+      <div class="modal-info-row"><span>К оплате:</span><span id="modalTotal">0 BYN</span></div>
+    </div>
+    <p style="font-size:13px">Курьер свяжется с вами в течение 5 минут для подтверждения.</p>
+    <button class="btn btn-primary" id="closeModal" style="width:100%;margin-top:20px">Отлично!</button>
+  </div>
+</div>
+
+<script>
+/* ============ ФОЛБЭК-ФОТО ============ */
+const FB_SUSHI  = 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=600&q=80,https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&w=600&q=80';
+const FB_DRINK  = 'https://images.unsplash.com/photo-1544241907-f3f1f5ded15a?auto=format&fit=crop&w=600&q=80,https://images.unsplash.com/photo-1627435601361-ec25f5b1d0e5?auto=format&fit=crop&w=600&q=80';
+
+function imgError(img){
+  const list = (img.dataset.fb || '').split(',').filter(Boolean);
+  if(list.length){
+    img.dataset.fb = list.slice(1).join(',');
+    img.src = list[0];
+  } else {
+    img.style.display = 'none';
+  }
+}
+
+/* ============ DATA ============ */
+const U = (id,w=600) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=80`;
+
+const PRODUCTS = [
+  {id:1, cat:'sets', name:'Сет "Семейный"', desc:'Лосось, угорь, креветка, сыр, авокадо, огурец — 48 кусочков', weight:'1200 г', price:68,
+   img:U('photo-1553621042-f6e147245754'), fb:FB_SUSHI},
+  {id:2, cat:'sets', name:'Сет "Папа"', desc:'Фирменный набор шефа: Филадельфия, Дракон, Калифорния — 40 кусочков', weight:'1050 г', price:59,
+   img:U('photo-1788016634163-77b7c547b9d4'), fb:FB_SUSHI},
+  {id:3, cat:'sets', name:'Сет "Филадельфия Микс"', desc:'Три вида Филадельфии: классика, с угрём и с трюфелем — 32 кусочка', weight:'850 г', price:48,
+   img:U('photo-1763647756796-af9230245bf8'), fb:FB_SUSHI},
+  {id:4, cat:'sets', name:'Сет "Для двоих"', desc:'Романтический набор на двоих с соусами и имбирём — 24 кусочка', weight:'650 г', price:38,
+   img:U('photo-1563612116625-3012372fccce'), fb:FB_SUSHI},
+  {id:5, cat:'philadelphia', name:'Филадельфия Классик', desc:'Нежный лосось, сливочный сыр, свежий огурец, рис нори', weight:'260 г', price:19,
+   img:U('photo-1759646828324-c215a83828ae'), fb:FB_SUSHI},
+  {id:6, cat:'philadelphia', name:'Филадельфия Делюкс', desc:'Двойная порция лосося, авокадо, сливочный сыр, икра тобико', weight:'290 г', price:23,
+   img:U('photo-1749847259204-70db0b8f4202'), fb:FB_SUSHI},
+  {id:7, cat:'philadelphia', name:'Филадельфия с угрем', desc:'Копчёный угорь, соус унаги, кунжут, сливочный сыр', weight:'270 г', price:22,
+   img:U('photo-1611143669185-af224c5e3252'), fb:FB_SUSHI},
+  {id:8, cat:'baked', name:'Запечённый лосось', desc:'Ролл под шапкой из сливочного соуса и лосося, запечённый в печи', weight:'250 г', price:18,
+   img:U('photo-1617196034796-73dfa7b1fd56'), fb:FB_SUSHI},
+  {id:9, cat:'baked', name:'Запечённый краб', desc:'Снежный краб, сыр, соус спайси, зелёный лук — под корочкой', weight:'240 г', price:17,
+   img:U('photo-1729698597384-d218328dc3a9'), fb:FB_SUSHI},
+  {id:10, cat:'baked', name:'Запечённый "Вулкан"', desc:'Креветка, острый соус, сыр, тобико — огонь на языке!', weight:'260 г', price:20,
+   img:U('photo-1761314025679-1bc4e2f6f7fe'), fb:FB_SUSHI},
+  {id:11, cat:'drinks', name:'Кола 0,5 л', desc:'Освежающая газировка со льдом — идеальный спутник роллов', weight:'500 мл', price:5,
+   img:U('photo-1544241907-f3f1f5ded15a'), fb:FB_DRINK},
+  {id:12, cat:'drinks', name:'Морс клюквенный', desc:'Домашний морс из свежей клюквы со льдом — кисло-сладкий, бодрящий', weight:'400 мл', price:6,
+   img:U('photo-1752245818743-0fa72ba80c57'), fb:FB_DRINK},
+  {id:13, cat:'drinks', name:'Зелёный чай', desc:'Ароматный японский чай сенча в стеклянном чайнике', weight:'350 мл', price:4,
+   img:U('photo-1627435601361-ec25f5b1d0e5'), fb:FB_DRINK}
+];
+
+const ZONES = {
+  center: {label:'Центр / до 5 км', threshold:35, fee:5},
+  far:    {label:'Отдалённые 5–10 км', threshold:50, fee:8},
+  suburb: {label:'Пригород от 10 км', threshold:70, fee:12}
+};
+
+const CAT_LABELS = { sets:'Сет', philadelphia:'Ролл', baked:'Запечённый', drinks:'Напиток' };
+const CAT_EMOJI  = { sets:'🍱', philadelphia:'🍣', baked:'🔥', drinks:'🥤' };
+
+/* ============ STATE ============ */
+const state = { cart:{}, filter:'all' };
+
+/* ============ RENDER MENU ============ */
+const grid = document.getElementById('menuGrid');
+function renderMenu(){
+  const list = state.filter === 'all'
+    ? PRODUCTS
+    : PRODUCTS.filter(p => p.cat === state.filter);
+  grid.innerHTML = list.map(p => {
+    const qty = state.cart[p.id] || 0;
+    const controls = qty === 0
+      ? `<button class="add-btn" data-add="${p.id}">+ В корзину</button>`
+      : `<div class="qty-controls">
+           <button class="qty-btn" data-dec="${p.id}">−</button>
+           <span class="qty-val">${qty}</span>
+           <button class="qty-btn" data-inc="${p.id}">+</button>
+         </div>`;
+    return `
+      <article class="card">
+        <div class="card-img" data-emoji="${CAT_EMOJI[p.cat]}">
+          <span class="card-tag">${CAT_LABELS[p.cat]}</span>
+          <img src="${p.img}" alt="${p.name}" loading="lazy"
+               data-fb="${p.fb}" onerror="imgError(this)">
+        </div>
+        <div class="card-body">
+          <h3 class="card-title">${p.name}</h3>
+          <p class="card-desc">${p.desc}</p>
+          <div class="card-weight">⚖ ${p.weight}</div>
+          <div class="card-footer">
+            <div class="price">${p.price}<small>BYN</small></div>
+            ${controls}
+          </div>
+        </div>
+      </article>
+    `;
+  }).join('');
+}
+
+/* ============ FILTERS ============ */
+document.getElementById('filters').addEventListener('click', e => {
+  const btn = e.target.closest('.filter-btn');
+  if(!btn) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  state.filter = btn.dataset.filter;
+  renderMenu();
+});
+
+/* ============ CART LOGIC ============ */
+grid.addEventListener('click', e => {
+  const add = e.target.closest('[data-add]');
+  const inc = e.target.closest('[data-inc]');
+  const dec = e.target.closest('[data-dec]');
+  if(add){ changeQty(+add.dataset.add, 1); }
+  else if(inc){ changeQty(+inc.dataset.inc, 1); }
+  else if(dec){ changeQty(+dec.dataset.dec, -1); }
+});
+
+function changeQty(id, delta){
+  const next = Math.max(0, (state.cart[id] || 0) + delta);
+  if(next === 0) delete state.cart[id];
+  else state.cart[id] = next;
+  renderMenu();
+  updateCartHeader();
+  renderDrawer();
+}
+
+function cartItems(){
+  return Object.entries(state.cart).map(([id, qty]) => {
+    const p = PRODUCTS.find(x => x.id === +id);
+    return {...p, qty};
+  });
+}
+function subtotal(){ return cartItems().reduce((s,i) => s + i.price * i.qty, 0); }
+function totalQty(){ return Object.values(state.cart).reduce((s,q) => s + q, 0); }
+function updateCartHeader(){ document.getElementById('cartCount').textContent = totalQty(); }
+
+/* ============ DRAWER ============ */
+const drawer = document.getElementById('drawer');
+const overlay = document.getElementById('overlay');
+const drawerScroll = document.getElementById('drawerScroll');
+const drawerBody = document.getElementById('drawerBody');
+const drawerFoot = document.getElementById('drawerFoot');
+
+function openDrawer(){
+  drawer.classList.add('active');
+  overlay.classList.add('active');
+  // Блокируем прокрутку ТОЛЬКО страницы. Сам drawer прокручивается независимо,
+  // потому что у него overflow:hidden, а прокрутка у внутреннего .drawer-scroll.
+  document.body.classList.add('no-scroll');
+}
+function closeDrawer(){
+  drawer.classList.remove('active');
+  overlay.classList.remove('active');
+  document.body.classList.remove('no-scroll');
+}
+
+document.getElementById('openCart').addEventListener('click', openDrawer);
+document.getElementById('closeCart').addEventListener('click', closeDrawer);
+overlay.addEventListener('click', closeDrawer);
+
+function renderDrawer(){
+  const items = cartItems();
+  if(items.length === 0){
+    drawerBody.innerHTML = `
+      <div class="cart-empty">
+        <span class="emoji">🍱</span>
+        <h3 style="margin-bottom:8px;color:#fff">Корзина пуста</h3>
+        <p>Добавьте что-нибудь вкусное из нашего меню</p>
+      </div>`;
+    drawerFoot.style.display = 'none';
+    return;
+  }
+  drawerBody.innerHTML = items.map(i => `
+    <div class="cart-item">
+      <div class="cart-thumb" data-emoji="${CAT_EMOJI[i.cat]}">
+        <img src="${i.img}" alt="${i.name}" data-fb="${i.fb}" onerror="imgError(this)">
+      </div>
+      <div class="cart-item-info">
+        <div class="cart-item-title">${i.name}</div>
+        <div class="cart-item-price">${i.price} BYN × ${i.qty}</div>
+        <div class="cart-item-controls">
+          <div class="qty-controls">
+            <button class="qty-btn" data-dec="${i.id}">−</button>
+            <span class="qty-val">${i.qty}</span>
+            <button class="qty-btn" data-inc="${i.id}">+</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px">
+            <span class="cart-item-total">${i.price * i.qty} BYN</span>
+            <button class="remove-btn" data-remove="${i.id}">удалить</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+  drawerFoot.style.display = 'block';
+  updateSummary();
+}
+
+drawerBody.addEventListener('click', e => {
+  const inc = e.target.closest('[data-inc]');
+  const dec = e.target.closest('[data-dec]');
+  const rm  = e.target.closest('[data-remove]');
+  if(inc) changeQty(+inc.dataset.inc, 1);
+  else if(dec) changeQty(+dec.dataset.dec, -1);
+  else if(rm){
+    delete state.cart[+rm.dataset.remove];
+    renderMenu(); updateCartHeader(); renderDrawer();
+  }
+});
+
+/* ============ SUMMARY ============ */
+function selectedZone(){
+  const el = document.querySelector('input[name="zone"]:checked');
+  return el ? el.value : 'center';
+}
+function calcDelivery(){
+  const z = ZONES[selectedZone()];
+  return subtotal() >= z.threshold ? 0 : z.fee;
+}
+function updateSummary(){
+  const sub = subtotal();
+  const del = calcDelivery();
+  document.getElementById('sumSubtotal').textContent = sub + ' BYN';
+  document.getElementById('sumDelivery').innerHTML =
+    del === 0 ? '<span class="free">Бесплатно ✓</span>' : del + ' BYN';
+  document.getElementById('sumTotal').textContent = (sub + del) + ' BYN';
+}
+document.querySelectorAll('input[name="zone"]').forEach(r => {
+  r.addEventListener('change', updateSummary);
+});
+
+/* ============ CHECKOUT ============ */
+document.getElementById('orderForm').addEventListener('submit', e => {
+  e.preventDefault();
+  if(totalQty() === 0) return;
+  const zoneLabel = ZONES[selectedZone()].label;
+  const total = subtotal() + calcDelivery();
+  const orderNum = '#' + (Math.floor(Math.random()*900) + 100);
+
+  document.getElementById('orderNum').textContent = orderNum;
+  document.getElementById('modalZone').textContent = zoneLabel;
+  document.getElementById('modalTotal').textContent = total + ' BYN';
+
+  state.cart = {};
+  renderMenu(); updateCartHeader(); renderDrawer();
+  e.target.reset();
+  closeDrawer();
+  openModal();
+});
+
+/* ============ MODAL ============ */
+const modal = document.getElementById('successModal');
+function openModal(){ modal.classList.add('active'); document.body.classList.add('no-scroll'); }
+function closeModal(){ modal.classList.remove('active'); document.body.classList.remove('no-scroll'); }
+document.getElementById('closeModal').addEventListener('click', closeModal);
+document.getElementById('modalBg').addEventListener('click', closeModal);
+
+/* ============ BURGER (mobile nav) ============ */
+document.getElementById('burger').addEventListener('click', () => {
+  const menu = document.querySelector('nav');
+  if(menu.style.display === 'block'){
+    menu.style.display = '';
+  } else {
+    menu.style.cssText = 'display:block;position:absolute;top:70px;left:0;right:0;background:var(--card);padding:20px;border-bottom:1px solid var(--border)';
+    menu.querySelector('ul').style.cssText = 'flex-direction:column;gap:16px';
+  }
+});
+
+/* ============ АВТОПРОКРУТКА К АКТИВНОМУ ПОЛЮ ФОРМЫ ============
+   При focus на input/textarea в форме заказа ждём ~350мс (пока откроется
+   клавиатура), затем плавно прокручиваем .drawer-scroll так, чтобы поле
+   оказалось в центре видимой области. Работает на ПК и мобильных. */
+(function setupMobileFormScroll(){
+  const form = document.getElementById('orderForm');
+  if(!form) return;
+  const fields = form.querySelectorAll('input, textarea');
+
+  fields.forEach(el => {
+    el.addEventListener('focus', () => {
+      setTimeout(() => {
+        try {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } catch(e){}
+
+        // Fallback: ручная прокрутка .drawer-scroll
+        const container = drawerScroll;
+        if(!container) return;
+        const fieldRect = el.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+
+        if(fieldRect.bottom > containerRect.bottom - 80){
+          const offset = fieldRect.bottom - containerRect.bottom + 120;
+          container.scrollBy({ top: offset, behavior: 'smooth' });
+        } else if(fieldRect.top < containerRect.top + 80){
+          const offset = containerRect.top + 80 - fieldRect.top;
+          container.scrollBy({ top: -offset, behavior: 'smooth' });
+        }
+      }, 350);
+    });
+  });
+
+  // При изменении viewport (открытие/закрытие клавиатуры) повторяем прокрутку
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', () => {
+      const active = document.activeElement;
+      if(active && form.contains(active)){
+        setTimeout(() => {
+          try { active.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch(e){}
+        }, 100);
+      }
+    });
+  }
+})();
+
+/* ============ INIT ============ */
+renderMenu();
+updateCartHeader();
+renderDrawer();
+</script>
+</body>
+</html>
